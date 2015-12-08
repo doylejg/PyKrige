@@ -128,7 +128,10 @@ def initialize_variogram_model(x, y, z, variogram_model, variogram_model_paramet
     dx = x1 - x2
     dy = y1 - y2
     dz = z1 - z2
-    d = np.sqrt(dx**2 + dy**2)
+    ################################
+    # Doyle: using haversine function to correct for lags in km
+    R = 6371 # km
+    d = 2*R*np.arcsin(np.sqrt(np.sin(dy/2)**2 + np.cos(y1)*np.cos(y2)*np.sin(dx/2)**2))
     g = 0.5 * dz**2
 
     indices = np.indices(d.shape)

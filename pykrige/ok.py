@@ -374,7 +374,9 @@ class OrdinaryKriging:
         """Assembles the kriging matrix."""
 
         xy = np.concatenate((self.X_ADJUSTED[:, np.newaxis], self.Y_ADJUSTED[:, np.newaxis]), axis=1)
-        d = cdist(xy, xy, 'euclidean')
+
+ #        d = cdist(xy, xy, 'euclidean')
+        d = cdist(xy, xy, lambda u, v: 2*6371*np.arcsin(np.sqrt(np.sin((v-u)[1]/2)**2 + np.cos(u[1])*np.cos(v[1])*np.sin((v-u)[0]/2)**2)) )
         a = np.zeros((n+1, n+1))
         a[:n, :n] = - self.variogram_function(self.variogram_model_parameters, d)
         np.fill_diagonal(a, 0.)
@@ -618,7 +620,10 @@ class OrdinaryKriging:
             else:
                 raise ValueError('Specified backend {} for a moving window is not supported.'.format(backend))
         else:
-            bd = cdist(xy_points,  xy_data, 'euclidean')
+            #bd = cdist(xy_points,  xy_data, 'euclidean')
+            bd = cdist(xy_points, xy_data, lambda u, v: 2*6371*np.arcsin(np.sqrt(np.sin((v-u)[1]/2)**2 + np.cos(u[1])*np.cos(v[1])*np.sin((v-u)[0]/2)**2)) )
+
+
             if backend == 'vectorized':
                 zvalues, sigmasq = self._exec_vector(a, bd, mask)
             elif backend == 'loop':
