@@ -195,9 +195,9 @@ def initialize_variogram_model(x, y, z, variogram_model, variogram_model_paramet
             raise ValueError("Exactly three parameters required "
                              "for %s variogram model" % variogram_model)
     else:
-        if variogram_model == 'custom':
-            raise ValueError("Variogram parameters must be specified when implementing custom variogram model.")
-        else:
+        #if variogram_model == 'custom':
+        #    raise ValueError("Variogram parameters must be specified when implementing custom variogram model.")
+        #else:
             variogram_model_parameters = calculate_variogram_model(lags, semivariance, variogram_model,
                                                                    variogram_function, weight)
 
@@ -293,6 +293,10 @@ def calculate_variogram_model(lags, semivariance, variogram_model, variogram_fun
         x0 = [(np.amax(semivariance) - np.amin(semivariance))/(np.amax(lags) - np.amin(lags)),
               1.1, np.amin(semivariance)]
         bnds = ((0.0, 1000000000.0), (0.01, 1.99), (0.0, np.amax(semivariance)))
+    elif variogram_model == 'custom':
+        x0 = [np.amax(semivariance), 300, np.amin(semivariance)]
+        bnds = ((0.0, np.amax(semivariance)), (0.0, np.amax(lags)), (0, 100))# .3*np.amax(semivariance)))
+        #params: [sill, range, nugget]
     else:
         x0 = [np.amax(semivariance), 0.5*np.amax(lags), np.amin(semivariance)]
         bnds = ((0.0, 10*np.amax(semivariance)), (0.0, np.amax(lags)), (0.0, np.amax(semivariance)))
