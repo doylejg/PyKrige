@@ -270,8 +270,18 @@ def variogram_function_error(params, x, y, variogram_function, weight):
     """Function used to in fitting of variogram model.
     Returns RMSE between calculated fit and actual data."""
 
-    diff = variogram_function(params, x) - y
+    # try removing data after range
+    args = x<=(params[1]*1.5)
+    if np.any(args):
+        x = x[args]
+        y = y[args]
+    ####
 
+    if params[2]>=params[0]:
+        return np.inf
+
+    diff = variogram_function(params, x) - y
+    
     if weight:
         weights = np.arange(x.size, 0.0, -1.0)
         weights /= np.sum(weights)
@@ -294,8 +304,8 @@ def calculate_variogram_model(lags, semivariance, variogram_model, variogram_fun
               1.1, np.amin(semivariance)]
         bnds = ((0.0, 1000000000.0), (0.01, 1.99), (0.0, np.amax(semivariance)))
     elif variogram_model == 'custom':
-        x0 = [np.amax(semivariance), 300, np.amin(semivariance)]
-        bnds = ((0.0, np.amax(semivariance)), (0.0, np.amax(lags)), (0, 100))# .3*np.amax(semivariance)))
+        x0 = [np.amax(semivariance), 150, np.amin(semivariance)]
+        bnds = ((0.0, np.amax(semivariance)), (0.0, np.amax(lags)), (1e-3, 100))# .3*np.amax(semivariance)))
         #params: [sill, range, nugget]
     else:
         x0 = [np.amax(semivariance), 0.5*np.amax(lags), np.amin(semivariance)]
